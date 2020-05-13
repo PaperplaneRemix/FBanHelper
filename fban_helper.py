@@ -8,6 +8,9 @@ from userbot.utils.helpers import get_chat_link
 
 plugin_category = "fedadmin"
 
+# Dictionary for holding success messages based on bot's ID.
+success_toasts = {609517172: ["New FedBan", "FedBan Reason update"]}
+
 
 @client.onMessage(command=("fban", plugin_category),
                   outgoing=True,
@@ -54,13 +57,16 @@ async def fban(event: NewMessage.Event) -> None:
                     resp = await conv.get_response()
                     LOGGER.debug(f"FBan: {resp.text}")
                     await client.send_read_acknowledge(conv.chat_id, resp)
-                    if "New FedBan" not in resp.text:
+                    if resp.from_id in success_toasts and any(
+                            success_toast in resp.message
+                            for success_toast in success_toasts[resp.from_id]):
+                        success += 1
+                        fbanned.append(user)
+                        await asyncio.sleep(0.3)
+                    else:
                         failed.append(chat)
                         skipped.update({str(user): failed})
                         continue
-                await asyncio.sleep(0.3)
-                success += 1
-                fbanned.append(user)
             except Exception as error:
                 LOGGER.debug(f"FBan failed: {error}")
                 failed.append(chat)
