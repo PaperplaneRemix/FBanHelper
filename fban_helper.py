@@ -9,7 +9,7 @@ from userbot.utils.helpers import get_chat_link
 plugin_category = "fedadmin"
 
 # Dictionary for holding success messages based on bot's ID.
-success_toasts = {609517172: ["New FedBan", "FedBan Reason update"]}
+success_toasts = {609517172: ["New FedBan", "FedBan Reason update", "has already been fbanned"]}
 
 
 @client.onMessage(
@@ -57,9 +57,9 @@ async def fban(event: NewMessage.Event) -> None:
                     resp = await conv.get_response()
                     LOGGER.debug(f"FBan: {resp.text}")
                     await client.send_read_acknowledge(conv.chat_id, resp)
-                    if resp.from_id in success_toasts and any(
+                    if resp.sender_id in success_toasts and any(
                         success_toast in resp.message
-                        for success_toast in success_toasts[resp.from_id]
+                        for success_toast in success_toasts[resp.sender_id]
                     ):
                         fbanned.append(user)
                         await asyncio.sleep(0.3)
